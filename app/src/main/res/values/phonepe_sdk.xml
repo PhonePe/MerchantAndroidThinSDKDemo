@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ph_colorPrimary">@color/colorPrimary</color>
+    <color name="ph_colorPrimaryDark">@color/colorPrimaryDark</color>
+    <color name="ph_textColor">@color/secondary_text</color>
+</resources>

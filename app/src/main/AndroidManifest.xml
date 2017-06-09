@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.phonepe.merchantsdk.demo">
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_logo"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="Settings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ResultActivity"
+            android:label="Result"
+            android:theme="@style/AppTheme" />
+
+        <!-- Replace it with your merchant id -->
+        <meta-data
+            android:name="com.phonepe.android.sdk.MerchantId"
+            android:value="M2306160483220675579140" />
+
+        <!-- Replace it with your android id -->
+        <meta-data
+            android:name="com.phonepe.android.sdk.AppId"
+            android:value="80ce228d434c43c3ad5fdeb4378d2507" />
+
+        <meta-data
+            android:name="com.phonepe.android.sdk.Debuggable"
+            android:value="true" />
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

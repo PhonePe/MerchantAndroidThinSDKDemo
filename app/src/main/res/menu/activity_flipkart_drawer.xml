@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/drawer_home"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="Home"/>
+
+        <item
+            android:id="@+id/drawer_refund"
+            android:icon="@drawable/ic_refund"
+            android:title="My Orders"/>
+
+        <item
+            android:id="@+id/drawer_account"
+            android:icon="@drawable/ic_account"
+            android:title="Phonepe Account"/>
+
+        <item
+            android:id="@+id/drawer_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Settings"/>
+    </group>
+
+
+</menu>
