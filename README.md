@@ -5,16 +5,16 @@
 Sample application to understand integration of PhonePe Android Merchant SDK
 <br>
 ## Integration
-https://gitlab.phonepe.com/ankitjain/MerchantAndroidThickSDKDemo/wikis/Android-SDK-Integration
+https://github.com/PhonePe/MerchantAndroidThinSDKDemo/wiki/Android-SDK-Integration
 
 ## Usage
-https://gitlab.phonepe.com/ankitjain/MerchantAndroidThickSDKDemo/wikis/API-Usage
+https://github.com/PhonePe/MerchantAndroidThinSDKDemo/wiki/API-Usage
 
 ## Definitions
-https://gitlab.phonepe.com/ankitjain/MerchantAndroidThickSDKDemo/wikis/Definitions
+https://github.com/PhonePe/MerchantAndroidThinSDKDemo/wiki/Definitions
 
 ## Prod Release Notes
-https://gitlab.phonepe.com/ankitjain/MerchantAndroidThickSDKDemo/wikis/Prod-Release-Notes
+https://github.com/PhonePe/MerchantAndroidThinSDKDemo/wiki/Prod-Release-Notes
 
 ## Snapshot Release Notes
-https://gitlab.phonepe.com/ankitjain/MerchantAndroidThickSDKDemo/wikis/Snapshot-Release-Notes
+https://github.com/PhonePe/MerchantAndroidThinSDKDemo/wiki/Snapshot-Release-Notes
