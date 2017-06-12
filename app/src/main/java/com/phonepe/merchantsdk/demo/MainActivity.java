@@ -15,6 +15,7 @@ import com.phonepe.android.sdk.api.PhonePe;
 import com.phonepe.android.sdk.api.builders.AccountingInfoBuilder;
 import com.phonepe.android.sdk.api.builders.DebitRequestBuilder;
 import com.phonepe.android.sdk.api.builders.OrderInfoBuilder;
+import com.phonepe.android.sdk.api.builders.ProfileRequestBuilder;
 import com.phonepe.android.sdk.api.builders.SignUpRequestBuilder;
 import com.phonepe.android.sdk.api.builders.UserInfoBuilder;
 import com.phonepe.android.sdk.api.models.AccountingInfo;
@@ -26,6 +27,7 @@ import com.phonepe.android.sdk.api.utils.CheckSumUtils;
 import com.phonepe.merchantsdk.demo.utils.CacheUtils;
 import com.phonepe.merchantsdk.demo.utils.Constants;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -56,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     void showAccountDetails() {
         String userId = CacheUtils.getInstance(this).getUserId();
 
+        final String txnId = UUID.randomUUID().toString().substring(0, 15);
+        ProfileRequestBuilder profileRequestBuilder = new ProfileRequestBuilder();
+
+
         UserInfoBuilder userInfoBuilder = new UserInfoBuilder()
                 .setUserId(userId);
 
@@ -72,7 +78,14 @@ public class MainActivity extends AppCompatActivity {
             userInfoBuilder.setShortName(mName);
         }
 
-        PhonePe.showAccountDetails(userInfoBuilder.build());
+        profileRequestBuilder
+                .setAPIVersion("1")
+                .setChecksum("someChecksum")
+                .setTransactionId(txnId)
+                .setUserInfo(userInfoBuilder.build())
+                .setMerchantInfo(null);
+
+        PhonePe.showAccountDetails(profileRequestBuilder.build());
     }
 
     //*********************************************************************
@@ -163,6 +176,13 @@ public class MainActivity extends AppCompatActivity {
         String userId = CacheUtils.getInstance(this).getUserId();
         String checksum = CheckSumUtils.getCheckSumForPayment(Constants.MERCHANT_ID, txnId, amount * 100, Constants.SALT, Constants.SALT_KEY_INDEX);
 
+        OfferInfo oInfo = new OfferInfo("offerId", "Amazing offer");
+        DiscountInfo discountInfo = new DiscountInfo("discountId", "Discount info", "Some Info");
+
+        HashMap<String, Object> hMap = new HashMap<>();
+        hMap.put("offer", oInfo);
+        hMap.put("discount", discountInfo);
+
         UserInfoBuilder userInfoBuilder = new UserInfoBuilder()
                 .setUserId(userId);
 
@@ -193,7 +213,9 @@ public class MainActivity extends AppCompatActivity {
                 .setAccountingInfo(accountingInfo)
                 .setOrderInfo(orderInfo)
                 .setUserInfo(userInfoBuilder.build())
+                .setMerchantInfo(hMap)
                 .setChecksum(checksum)
+                .setAPIVersion("1")
                 .build();
 
         startActivityForResult(PhonePe.getDebitIntent(this, debitRequest), 300);
