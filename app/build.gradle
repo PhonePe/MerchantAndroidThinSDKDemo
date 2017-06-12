@@ -52,7 +52,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 
     //PhonePe SDK dependency
-    compile 'phonepe.thinsdk.android.snapshot:merchantsdk:1.0.0'
+    compile 'phonepe.thinsdk.android.snapshot:merchantsdk:0.8.0'
 
     //Your Test dependencies
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

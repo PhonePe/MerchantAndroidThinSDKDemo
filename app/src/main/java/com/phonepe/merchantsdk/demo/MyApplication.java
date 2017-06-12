@@ -13,6 +13,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        PhonePe.init(this, null);
+        PhonePe.init(this);
     }
 }
