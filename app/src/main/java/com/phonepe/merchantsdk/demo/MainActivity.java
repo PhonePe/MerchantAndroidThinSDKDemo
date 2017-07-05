@@ -4,29 +4,23 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.phonepe.android.sdk.api.PhonePe;
-import com.phonepe.android.sdk.api.builders.AccountingInfoBuilder;
-import com.phonepe.android.sdk.api.builders.DebitRequestBuilder;
-import com.phonepe.android.sdk.api.builders.OrderInfoBuilder;
-import com.phonepe.android.sdk.api.builders.ProfileRequestBuilder;
-import com.phonepe.android.sdk.api.builders.SignUpRequestBuilder;
-import com.phonepe.android.sdk.api.builders.UserInfoBuilder;
-import com.phonepe.android.sdk.api.models.AccountingInfo;
-import com.phonepe.android.sdk.api.models.DebitRequest;
-import com.phonepe.android.sdk.api.models.OrderInfo;
-import com.phonepe.android.sdk.api.models.SignUpRequest;
+import com.phonepe.android.sdk.api.builders.TransactionRequestBuilder;
+import com.phonepe.android.sdk.api.models.TransactionRequest;
 import com.phonepe.android.sdk.api.utils.BundleConstants;
 import com.phonepe.android.sdk.api.utils.CheckSumUtils;
 import com.phonepe.merchantsdk.demo.utils.CacheUtils;
 import com.phonepe.merchantsdk.demo.utils.Constants;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -44,48 +38,69 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.id_result)
     TextView resultTextView;
+    private String mMobileNo;
+    private String mEmail;
+    private String mName;
 
     @OnClick(R.id.id_debit)
     void showDebitDemo() {
         startDebit();
     }
 
-    private String mMobileNo;
-    private String mEmail;
-    private String mName;
-
     @OnClick(R.id.id_account)
     void showAccountDetails() {
+        //*********************************************************************
+        // Your server does the following work
+        //*********************************************************************
+        final String txnId = UUID.randomUUID().toString().substring(0, 35);
         String userId = CacheUtils.getInstance(this).getUserId();
+        String apiEndPoint = "/v3/profile";
 
-        final String txnId = UUID.randomUUID().toString().substring(0, 15);
-        ProfileRequestBuilder profileRequestBuilder = new ProfileRequestBuilder();
-
-
-        UserInfoBuilder userInfoBuilder = new UserInfoBuilder()
-                .setUserId(userId);
-
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("merchantId", Constants.MERCHANT_ID);
+        data.put("transactionId", txnId);
+        data.put("merchantUserId", userId);
 
         if (!isEmpty(mMobileNo)) {
-            userInfoBuilder.setMobileNumber(mMobileNo);
+            data.put("mobileNumber", mMobileNo);
         }
 
         if (!isEmpty(mEmail)) {
-            userInfoBuilder.setEmail(mEmail);
+            data.put("email", mEmail);
         }
 
         if (!isEmpty(mName)) {
-            userInfoBuilder.setShortName(mName);
+            data.put("shortName", mName);
         }
 
-        profileRequestBuilder
-                .setAPIVersion("1")
-                .setChecksum("someChecksum")
-                .setTransactionId(txnId)
-                .setUserInfo(userInfoBuilder.build())
-                .setMerchantInfo(null);
+        String dataString = new Gson().toJson(data);
+        String dataString64 = null;
 
-        PhonePe.showAccountDetails(profileRequestBuilder.build());
+        try {
+            dataString64 = Base64.encodeToString(dataString.getBytes("UTF-8"), Base64.DEFAULT);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        String checksumV2 = CheckSumUtils.getCheckSum(dataString64, apiEndPoint, Constants.SALT, Constants.SALT_KEY_INDEX);
+        //******************************************************************************
+        // Your server give back a json containing dataString64, checksumV2, apiEndPoint
+        //******************************************************************************
+
+
+        //************************************************************************************************************
+        // Your App takes the json containing dataString64, checksumV2, apiEndPoint and make TransactionRequest object
+        //************************************************************************************************************
+        TransactionRequest profileRequest = new TransactionRequestBuilder()
+                .setData(dataString64)
+                .setChecksum(checksumV2)
+                .setUrl(apiEndPoint)
+                .build();
+
+        startActivity(PhonePe.getTransactionIntent(this, profileRequest));
+        //************************************************************************************************************
+        // Your App startActivity to show Profile
+        //************************************************************************************************************
     }
 
     //*********************************************************************
@@ -103,35 +118,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if ((requestCode == 300) || (requestCode == 500)) {
+        if (requestCode == 300) {
             Bundle bundle;
-            String txnStatus = null;
+            String txnResult = null;
             if (data != null) {
                 bundle = data.getExtras();
-                txnStatus = bundle.getString(BundleConstants.KEY_TRANSACTION_STATUS);
+                txnResult = bundle.getString(BundleConstants.KEY_TRANSACTION_RESULT);
             }
             if (resultCode == Activity.RESULT_OK) {
-                Toast.makeText(MainActivity.this, txnStatus, Toast.LENGTH_SHORT).show();
-
-//                trackTxnStatus(txnId, false, merchantId);
+                Toast.makeText(MainActivity.this, txnResult, Toast.LENGTH_SHORT).show();
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(MainActivity.this, "Cancel", Toast.LENGTH_SHORT).show();
             }
-
-
-        } else if (requestCode == 400) {
-            if (resultCode == RESULT_OK) {
-                Bundle bundle = data.getExtras();
-                boolean result = bundle.getBoolean(BundleConstants.KEY_IS_PHONEPE_ONBOARDING_SUCCESS);
-                Toast.makeText(this, "Result:" + result, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show();
-            }
-
-        } else if (resultCode == Activity.RESULT_OK && requestCode == 100) {
-            setDefaults();
         }
-
     }
 
 
@@ -171,54 +170,69 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startDebit() {
+        //*********************************************************************
+        // Your server does the following work
+        //*********************************************************************
         Long amount = CacheUtils.getInstance(this).getAmountForTransaction();
         final String txnId = UUID.randomUUID().toString().substring(0, 35);
         String userId = CacheUtils.getInstance(this).getUserId();
-        String checksum = CheckSumUtils.getCheckSumForPayment(Constants.MERCHANT_ID, txnId, amount * 100, Constants.SALT, Constants.SALT_KEY_INDEX);
+        String apiEndPoint = "/v3/debit";
 
         OfferInfo oInfo = new OfferInfo("offerId", "Amazing offer");
         DiscountInfo discountInfo = new DiscountInfo("discountId", "Discount info", "Some Info");
 
-        HashMap<String, Object> hMap = new HashMap<>();
-        hMap.put("offer", oInfo);
-        hMap.put("discount", discountInfo);
-
-        UserInfoBuilder userInfoBuilder = new UserInfoBuilder()
-                .setUserId(userId);
-
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("merchantId", Constants.MERCHANT_ID);
+        data.put("transactionId", txnId);
+        data.put("amount", amount * 100);
+        data.put("merchantOrderId", "OD139924923");
+        data.put("message", "Payment towards order No. OD139924923.");
+        data.put("merchantUserId", userId);
+        data.put("offer", oInfo);
+        data.put("discount", discountInfo);
 
         if (!isEmpty(mMobileNo)) {
-            userInfoBuilder.setMobileNumber(mMobileNo);
+            data.put("mobileNumber", mMobileNo);
         }
 
         if (!isEmpty(mEmail)) {
-            userInfoBuilder.setEmail(mEmail);
+            data.put("email", mEmail);
         }
 
         if (!isEmpty(mName)) {
-            userInfoBuilder.setShortName(mName);
+            data.put("shortName", mName);
         }
 
+        data.put("providerName", "xMerchantId");
 
-        OrderInfo orderInfo = new OrderInfoBuilder()
-                .setOrderId("OD139924923")
-                .setMessage("Payment towards order No. OD139924923.")
+        String dataString = new Gson().toJson(data);
+        String dataString64 = null;
+
+        try {
+            dataString64 = Base64.encodeToString(dataString.getBytes("UTF-8"), Base64.DEFAULT);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        String checksumV2 = CheckSumUtils.getCheckSum(dataString64, apiEndPoint, Constants.SALT, Constants.SALT_KEY_INDEX);
+        //******************************************************************************
+        // Your server give back a json containing dataString64, checksumV2, apiEndPoint
+        //******************************************************************************
+
+
+        //************************************************************************************************************
+        // Your App takes the json containing dataString64, checksumV2, apiEndPoint and make TransactionRequest object
+        //************************************************************************************************************
+        TransactionRequest transactionRequest2 = new TransactionRequestBuilder()
+                .setData(dataString64)
+                .setChecksum(checksumV2)
+                .setUrl(apiEndPoint)
                 .build();
 
-        AccountingInfo accountingInfo = new AccountingInfoBuilder().setSubMerchant("xMerchantId").build();
-
-        DebitRequest debitRequest = new DebitRequestBuilder()
-                .setTransactionId(txnId)
-                .setAmount(amount * 100)
-                .setAccountingInfo(accountingInfo)
-                .setOrderInfo(orderInfo)
-                .setUserInfo(userInfoBuilder.build())
-                .setMerchantInfo(hMap)
-                .setChecksum(checksum)
-                .setAPIVersion("1")
-                .build();
-
-        startActivityForResult(PhonePe.getDebitIntent(this, debitRequest), 300);
+        startActivityForResult(PhonePe.getTransactionIntent(this, transactionRequest2), 300);
+        //************************************************************************************************************
+        // Your App startActivityForResult and get a callback onActivityResult
+        //************************************************************************************************************
     }
 
     private void trackTxnStatus(final String txnId, final boolean wascanceled) {
