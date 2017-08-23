@@ -16,8 +16,8 @@ allprojects {
         maven {
             url "http://phonepe.bintray.com/PhonePeThinAndroidSDK-SNAPSHOT"
             credentials {
-                username "xxxxxxxxx"
-                password "yyyyyyyyy"
+                username "<username>@phonepe"
+                password "<pwd>"
             }
         }
 

@@ -9,10 +9,10 @@ android {
             keyPassword 'debug'
         }
         config {
-            keyAlias 'release'
-            keyPassword 'release'
-            storeFile file('release.jks')
-            storePassword 'release'
+            keyAlias 'keyAlias'
+            keyPassword 'keyPassword'
+            storeFile file("path")
+            storePassword 'storePassword'
         }
     }
     compileSdkVersion 25
@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId "com.phonepe.merchantsdk.demo"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -28,7 +28,7 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
@@ -43,8 +43,8 @@ android {
 dependencies {
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
-
     //Your App dependencies
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.jakewharton:butterknife:8.4.0'
@@ -59,5 +59,4 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
 }
