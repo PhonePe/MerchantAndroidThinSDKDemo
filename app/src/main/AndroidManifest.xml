@@ -26,12 +26,12 @@
         <!-- Replace it with your merchant id -->
         <meta-data
             android:name="com.phonepe.android.sdk.MerchantId"
-            android:value="<merchant id>" />
+            android:value="M2306160483220675579140" />
 
-        <!-- Replace it with your android id -->
+        <!-- Replace it with your android id given by PhonePe(unique for each signing key/SHA1) -->
         <meta-data
             android:name="com.phonepe.android.sdk.AppId"
-            android:value="<app id>" />
+            android:value="411014c27e5545eca8f44915015a8074" />
 
         <meta-data
             android:name="com.phonepe.android.sdk.Debuggable"

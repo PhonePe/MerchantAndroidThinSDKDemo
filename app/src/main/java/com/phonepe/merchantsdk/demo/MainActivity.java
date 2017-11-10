@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,10 +14,11 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.phonepe.android.sdk.api.PhonePe;
+import com.phonepe.android.sdk.api.PhonePeInitException;
 import com.phonepe.android.sdk.api.builders.TransactionRequestBuilder;
-import com.phonepe.android.sdk.api.models.TransactionRequest;
 import com.phonepe.android.sdk.api.utils.BundleConstants;
 import com.phonepe.android.sdk.api.utils.CheckSumUtils;
+import com.phonepe.android.sdk.base.model.TransactionRequest;
 import com.phonepe.merchantsdk.demo.utils.CacheUtils;
 import com.phonepe.merchantsdk.demo.utils.Constants;
 
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         String checksumV2 = CheckSumUtils.getCheckSum(dataString64, apiEndPoint, Constants.SALT, Constants.SALT_KEY_INDEX);
         //******************************************************************************
         // Your server give back a json containing dataString64, checksumV2, apiEndPoint
-        //******************************************************************************
+        //**********************************************************************On********
 
 
         //************************************************************************************************************
@@ -97,7 +99,11 @@ public class MainActivity extends AppCompatActivity {
                 .setUrl(apiEndPoint)
                 .build();
 
-        startActivity(PhonePe.getTransactionIntent(this, profileRequest));
+        try {
+            startActivity(PhonePe.getTransactionIntent(this, profileRequest));
+        } catch (PhonePeInitException e) {
+            e.printStackTrace();
+        }
         //************************************************************************************************************
         // Your App startActivity to show Profile
         //************************************************************************************************************
@@ -124,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 bundle = data.getExtras();
                 txnResult = bundle.getString(BundleConstants.KEY_TRANSACTION_RESULT);
+
             }
             if (resultCode == Activity.RESULT_OK) {
                 Toast.makeText(MainActivity.this, txnResult, Toast.LENGTH_SHORT).show();
@@ -188,8 +195,10 @@ public class MainActivity extends AppCompatActivity {
         data.put("merchantOrderId", "OD139924923");
         data.put("message", "Payment towards order No. OD139924923.");
         data.put("merchantUserId", userId);
-        data.put("offer", oInfo);
-        data.put("discount", discountInfo);
+//        data.put("offer", oInfo);
+//        data.put("discount", discountInfo);
+
+        Log.d("Transaction id" , txnId);
 
         if (!isEmpty(mMobileNo)) {
             data.put("mobileNumber", mMobileNo);
@@ -229,7 +238,11 @@ public class MainActivity extends AppCompatActivity {
                 .setUrl(apiEndPoint)
                 .build();
 
-        startActivityForResult(PhonePe.getTransactionIntent(this, transactionRequest2), 300);
+        try {
+            startActivityForResult(PhonePe.getTransactionIntent(this, transactionRequest2), 300);
+        } catch (PhonePeInitException e) {
+            e.printStackTrace();
+        }
         //************************************************************************************************************
         // Your App startActivityForResult and get a callback onActivityResult
         //************************************************************************************************************
