@@ -2,7 +2,7 @@
 
 [![N|Solid](https://www.phonepe.com/images/generic/phonepe_logo.svg)](https://www.phonepe.com)
 
-Sample application to understand integration of PhonePe Embedded Android Merchant SDK
+Sample application to understand integration of PhonePe Embedded Android Merchant SDK. For Integration related issues, mail your queries to merchant-integration@phonepe.com 
 <br>
 ## Integration
 https://developer.phonepe.com/docs/getting-started-android
